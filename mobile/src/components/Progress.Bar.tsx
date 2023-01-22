@@ -1,26 +1,30 @@
-import { View, TouchableOpacity, Text } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import colors from "tailwindcss/colors";
-import { useNavigation } from "@react-navigation/native";
+import { useEffect } from "react";
+import { View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
-import Logo from "../assets/logo.svg";
+interface Props {
+  progress?: number;
+}
 
-export function Header() {
-  const { navigate } = useNavigation();
+export function ProgressBar({ progress = 0 }: Props) {
+  const sharedProgress = useSharedValue(progress);
+  const style = useAnimatedStyle(() => {
+    return {
+      width: `${sharedProgress.value}%`,
+    };
+  });
+
+  useEffect(() => {
+    sharedProgress.value = withTiming(progress);
+  }, [progress]);
 
   return (
-    <View className="w-full flex-row items-center justify-between">
-      <Logo />
-
-      <TouchableOpacity
-        activeOpacity={0.7}
-        className="flex-row h-11 px-4 border border-violet-500 rounded-lg items-center"
-        onPress={() => navigate("new")}
-      >
-        <Feather name="plus" color={colors.violet[500]} size={20} />
-
-        <Text className="text-white ml-3 font-semibold text-base">Novo</Text>
-      </TouchableOpacity>
+    <View className="w-full h-3 rounded-xl bg-zinc-700 mt-4">
+      <Animated.View className="h-3 rounded-xl bg-violet-600" style={style} />
     </View>
   );
 }
